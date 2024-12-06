@@ -3,9 +3,9 @@ import { LoginPage } from '../pages/loginpage';
 import { StorePage } from '../pages/storepage';
 import AxeBuilder from '@axe-core/playwright';
 
-let password: string;
+/*let password: string;
 
-/*test.beforeAll(async () => {
+test.beforeAll(async () => {
   if (process.env.PASSWORD !== undefined) {
     password = process.env.PASSWORD;
   } else {
@@ -30,39 +30,65 @@ test.beforeEach('Login with Jovana', async ({ page }) => {
 });
 
 //  Verify Product Selection and Cart Update
-test('Add product to cart', async ({ page }) => {
+test('Add product to cart newone', async ({ page }) => {
 
     const apiContext = await request.newContext({
         baseURL: 'https://hoff.is/store2/api/v1',
     });
+    
+    let randomOption = Math.floor(Math.random() * 10); 
+    let randomAmount = Math.floor(Math.random() * 10) +1;
 
-    const option = '1';
-    const amount = '2';
-    let optionInt = parseInt(option, 10)
-    optionInt = optionInt-1;
+    // Convert to strings for initial usage
+    const option = randomOption.toString();
+    const amount = randomAmount.toString();
+    
+
+    // Convert back to integers when needed
+    let optionInt = parseInt(option, 10);
+    //optionInt = optionInt - 1; // Example adjustment
+
+    let amountInt = parseInt(amount, 10);
+    let productPrice;
+    let totalPrice;
+    console.log(`Random option as string: ${option}, as integer: ${optionInt}`);
+    console.log(`Random amount as string: ${amount}, as integer: ${amountInt}`);
   
-    await page.goto('https://hoff.is/store2/?username=Jovana&role=consumer');
+    //await page.goto('https://hoff.is/store2/?username=Jovana&role=consumer');
     await page.getByTestId('select-product').selectOption(option);
     
     await page.getByLabel('Amount').fill(amount);
     await page.getByTestId('add-to-cart-button').click();  
     
-    const receiptProductName = await page.getByTestId('Apple-receipt-name').textContent();
-    const receiptPorductQuantity = await page.getByTestId('Apple-receipt-quantity').textContent();
+    const receiptProductName = await page.locator('#cartItems').textContent();
+    const receiptPorductQuantity = await page.locator('#cartItems').textContent();
 
-    const responseGetProductList = await apiContext.get('/product/list')
+    const responseGetProductList = await apiContext.get('https://hoff.is/store2/api/v1/product/list')
     const responseProductListJson = await responseGetProductList.json()
-    const responseGetProduct = await apiContext.get('/price/1')
+    const responseGetProduct = await apiContext.get(`https://hoff.is/store2/api/v1/price/${optionInt}`)
     const responseProductJson = await responseGetProduct.json()
+    optionInt = optionInt-1
     const product = responseProductListJson.products[optionInt];
-    const chosenProduct = responseProductJson;    
-   
-    //Verify correct product has been added to cart
-    expect(responseGetProductList.status()).toBe(200);    
+    const chosenProduct = responseProductJson;  
+    productPrice = chosenProduct.price;
+    productPrice = parseInt(productPrice, 10)
+    totalPrice = productPrice * amountInt;
+    if (totalPrice > 10000) {
+      console.log("Insufficient funds!");
+      test.skip(); // Skip the test if the condition is met
+    }
+    totalPrice = totalPrice.toString()
+    /*console.log(productPrice);
+    console.log(totalPrice);*/
+    const grandTotal = page.locator('#grandTotal'); 
+             
+    //Verify correct product has been added to cart and total price
+    expect(responseGetProductList.status()).toBe(200) 
     expect(responseProductListJson.products[optionInt].id, 'Product Id should be ').toBe(chosenProduct.id)
-    expect(responseProductListJson.products[optionInt].name, 'Product name should be ').toBe(chosenProduct.name)
-    expect(receiptProductName?.trim()).toBe(product.name)
-    expect(receiptPorductQuantity?.trim()).toBe(amount);
+    expect(responseProductListJson.products[optionInt].name.toLowerCase(), 'Product name should be ').toBe(chosenProduct.name.toLowerCase())
+    expect(grandTotal, 'Total price should be ').toContainText(totalPrice)
+    expect(receiptProductName?.trim()).toContain(product.name)
+    expect(receiptPorductQuantity?.trim()).toContain(amount)
   });
 
   // Verify Cart Item Removal
@@ -72,7 +98,7 @@ test('Add product to cart', async ({ page }) => {
     let optionInt = parseInt(option, 10)
     optionInt = optionInt-1;
   
-    await page.goto('https://hoff.is/store2/?username=Jovana&role=consumer');
+    //await page.goto('https://hoff.is/store2/?username=Jovana&role=consumer');
     await page.getByTestId('select-product').selectOption(option);  
     await page.getByLabel('Amount').fill(amount);
     await page.getByTestId('add-to-cart-button').click(); 
@@ -93,7 +119,7 @@ test('Add product to cart', async ({ page }) => {
     let optionInt = parseInt(option, 10)
     optionInt = optionInt-1;
   
-    await page.goto('https://hoff.is/store2/?username=Jovana&role=consumer');
+    //await page.goto('https://hoff.is/store2/?username=Jovana&role=consumer');
     await page.getByTestId('select-product').selectOption(option);    
     await page.getByLabel('Amount').fill(amount);
     await page.getByTestId('add-to-cart-button').click();   
@@ -119,89 +145,11 @@ test('Add product to cart', async ({ page }) => {
     expect(rowsCount).toBe(0);
   });  
 
-  test('Verify cart summary and final price before purchase', async ({ page }) => {
-    const apiContext = await request.newContext({
-        baseURL: 'https://hoff.is/store2/api/v1',
-    });
-
-    const option = '1';
-    const amount = '2';
-    let optionInt = parseInt(option, 10)
-    optionInt = optionInt-1;
-  
-    await page.goto('https://hoff.is/store2/?username=Jovana&role=consumer');
-    await page.getByTestId('select-product').selectOption(option);
-    
-    await page.getByLabel('Amount').fill(amount);
-    await page.getByTestId('add-to-cart-button').click();  
-    
-    const receiptProductName = await page.getByTestId('Apple-receipt-name').textContent();
-    const receiptPorductQuantity = await page.getByTestId('Apple-receipt-quantity').textContent();
-
-    const responseGetProductList = await apiContext.get('/product/list')
-    const responseProductListJson = await responseGetProductList.json()
-    const responseGetProduct = await apiContext.get('/price/1')
-    const responseProductJson = await responseGetProduct.json()
-    const product = responseProductListJson.products[optionInt];
-    const chosenProduct = responseProductJson;    
-   
-    //Verify correct product has been added to cart
-    expect(responseGetProductList.status()).toBe(200);    
-    expect(responseProductListJson.products[optionInt].id, 'Product Id should be ').toBe(chosenProduct.id)
-    expect(responseProductListJson.products[optionInt].name, 'Product name should be ').toBe(chosenProduct.name)
-    expect(receiptProductName?.trim()).toBe(product.name)
-    expect(receiptPorductQuantity?.trim()).toBe(amount);
-  });  
-      
-    
-
-    
-    /*
-    await page.getByRole('button', { name: 'Buy' }).click();
-  await page.getByRole('heading', { name: 'Finalize Purchase' }).click();
-  await page.getByLabel('Name:').click();
-  await page.getByLabel('Name:').fill('Jovana');
-  await page.getByLabel('Address:').click();
-  await page.getByLabel('Address:').fill('Adress1');
-  await page.getByLabel('Address:').press('ArrowLeft');
-  await page.getByLabel('Address:').press('ArrowLeft');
-  await page.getByLabel('Address:').press('ArrowLeft');
-  await page.getByLabel('Address:').press('ArrowLeft');
-  await page.getByLabel('Address:').press('ArrowLeft');
-  await page.getByLabel('Address:').fill('Address1');
-  await page.getByRole('button', { name: 'Confirm Purchase' }).click();
-  await page.getByRole('heading', { name: 'Receipt' }).click();
-  await page.getByText('x Apple - $24').click();
-  await page.getByText('Thank you for your purchase,').click();
-  await page.getByText('It will be shipped to:').click();
-  await page.locator('#receiptTotal').click();
-  await page.getByText('Total:', { exact: true }).click();
-  await page.locator('#receiptTotal').click();
-  await page.getByText('Close').click();
-
-    const pageProductName = page.getByTestId('Apple-receipt-price');
-    await page.getByTestId('Apple-receipt-name').click();
-    await page.getByTestId('Apple-receipt-quantity').click();
-    await page.locator('#grandTotal').click();
-    await page.locator('#totalSum').click();
-    await page.getByRole('button', { name: 'Buy' }).click();
-    await page.getByLabel('Name:').click();
-    await page.getByLabel('Name:').fill('Jovana');
-    await page.getByLabel('Address:').click();
-    await page.getByLabel('Address:').fill('Adress 10');
-    await page.getByRole('button', { name: 'Confirm Purchase' }).click();
-    await page.getByText('x Apple - $30').click();
-    await page.getByText('$30', { exact: true }).click();
-    await page.getByText('$35').click();
-    await page.getByText('Close').click();
-
-  });*/
-
   //Accessibility test
-  /*test.describe('Accessibility Testing for Hoff Store', () => {
+  test.describe('Accessibility Testing for Hoff Store', () => {
     test('should not have any automatically detectable accessibility issues', async ({ page }, testInfo) => {
       // Navigate to the URL
-      await page.goto('https://hoff.is/store2/?username=Jovana&role=consumer');
+      //await page.goto('https://hoff.is/store2/?username=Jovana&role=consumer');
       await page.locator(".user-info-box");
   
       // Perform the accessibility scan      
@@ -221,5 +169,20 @@ test('Add product to cart', async ({ page }) => {
       // Assert that there are no violations
       expect(axeBuilder.violations).toEqual([]);
     });
-  });*/
+  });
 
+  test('Failed inlog', async ({ page }) => {  
+  
+    //await page.goto('https://hoff.is/store2/?username=Jovana&role=consumer');
+    await page.getByRole('button', { name: 'Log Out' }).click();
+    await page.getByLabel('Username').fill('Jovana');    
+    await page.getByLabel('Password').fill('password');
+    await page.getByRole('button', { name: 'Login' }).click();
+
+    const title = await page.title();  
+    expect(title).toBe('Login Page');
+
+    const errorMessage = page.getByTestId('error-message');  
+    await expect(errorMessage).toContainText('Incorrect password');   
+    
+  });
