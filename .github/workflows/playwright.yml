@@ -8,7 +8,7 @@ on:
     types: [trigger-webhook]  
 jobs:
   test:
-    env:
+   # env:
     # PASSWORD: ${{ secrets.SUPER_SECRET }}
     timeout-minutes: 60
     runs-on: ubuntu-latest

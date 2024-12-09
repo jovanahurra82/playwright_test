@@ -5,7 +5,7 @@ import AxeBuilder from '@axe-core/playwright'
 // Login before tests
 test.beforeEach('Login with Jovana', async ({ page }) => {
   const loginPage = new LoginPage(page)
-  const storePage = new StorePage(page); 
+  const storePage = new StorePage(page)
 
   // Navigate to the login page
   await loginPage.navigateToLoginPage()
@@ -19,7 +19,7 @@ test.beforeEach('Login with Jovana', async ({ page }) => {
 });
 
 // Verify Product Selection and Cart Update
-test('Add product to cart newone', async ({ page }) => {
+test('Add product to cart', async ({ page }) => {
 
   const apiContext = await request.newContext({
     baseURL: 'https://hoff.is/store2/api/v1',
@@ -40,7 +40,7 @@ test('Add product to cart newone', async ({ page }) => {
   let optionInt = parseInt(option, 10)
   let amountInt = parseInt(amount, 10)
 
-  // Fetch product list and price via ProductApi
+  
   const responseGetProductList = await apiContext.get('https://hoff.is/store2/api/v1/product/list')
   const responseProductListJson = await responseGetProductList.json()  
 
@@ -48,7 +48,7 @@ test('Add product to cart newone', async ({ page }) => {
   const responseProductJson = await responseGetProduct.json()
 
   optionInt = optionInt-1
-  //const product = responseProductListJson.products[optionInt]
+  
   const chosenProduct = responseProductJson
   productPrice = chosenProduct.price
   productPrice = parseInt(responseProductJson.price, 10)
