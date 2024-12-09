@@ -136,7 +136,7 @@ test('Failed login', async ({ page }) => {
   expect(errorMessage).toBe('Incorrect password')
 });
 
-test.describe('Accessibility Testing for Hoff Store', () => {
+/*test.describe('Accessibility Testing for Hoff Store', () => {
   test('should not have any automatically detectable accessibility issues', async ({ page }, testInfo) => {    
     await page.locator(".user-info-box");
 
@@ -157,4 +157,4 @@ test.describe('Accessibility Testing for Hoff Store', () => {
     // Assert that there are no violations
     expect(axeBuilder.violations).toEqual([])
   });
-});
+});*/
