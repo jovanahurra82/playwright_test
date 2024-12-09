@@ -29,9 +29,9 @@ export default defineConfig({
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://127.0.0.1:3000',
     /* Ensure headed mode */
-    headless: false, // Always run tests in headed mode
+    headless: true, // Always run tests in headed mode
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on'//'on-first-retry',
+    trace: 'on-first-retry',
   },
 
   /* Configure projects for major browsers */

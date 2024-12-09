@@ -9,7 +9,7 @@
   "description": "",
   "devDependencies": {
     "@playwright/test": "^1.48.2",
-    "@types/node": "^22.9.0"
+    "@types/node": "^22.10.1"
   },
   "dependencies": {
     "@axe-core/playwright": "^4.10.1"
