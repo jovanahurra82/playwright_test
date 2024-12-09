@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     env:
-     PASSWORD: ${{ secrets.SUPER_SECRET }}
+    # PASSWORD: ${{ secrets.SUPER_SECRET }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
